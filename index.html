@@ -4,8 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arplane Songs</title>
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        #songs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* เพิ่มระยะห่างระหว่างปุ่ม */
+        }
+
+        .song-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .song-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -19,29 +65,30 @@
         </main>
     </div>
     <script>
-const apiKey = 'AIzaSyDgxTWXvIUQND4C7gzapRW6KNqEaBPQ8Y0';
-const sheetId = '1RghErH0w2v3msmgsNubUZxchF14ROg0WWNrKMsBZ6Ug';
-const sheetName = 'Songs';
-const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
-fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        const rowData = data.values.slice(1); // ละเว้นแถวหัวเรื่อง
-        let html = '';
-        rowData.forEach((row, index) => {
-            html += `
-                <button onclick="playSong(${index})" class="song-button">${row[0]}</button>
-            `;
-        });
-        const songsDiv = document.querySelector('#songs');
-        if (songsDiv) {
-            songsDiv.innerHTML = html;
-        }
-    })
-    .catch(error => console.error('Error fetching data:', error));
+        const apiKey = 'AIzaSyDgxTWXvIUQND4C7gzapRW6KNqEaBPQ8Y0';
+        const sheetId = '1RghErH0w2v3msmgsNubUZxchF14ROg0WWNrKMsBZ6Ug';
+        const sheetName = 'Songs';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const rowData = data.values.slice(1); // ละเว้นแถวหัวเรื่อง
+                let html = '';
+                rowData.forEach((row, index) => {
+                    html += `
+                        <button onclick="playSong(${index})" class="song-button">${row[0]}</button>
+                    `;
+                });
+                const songsDiv = document.querySelector('#songs');
+                if (songsDiv) {
+                    songsDiv.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
 
-function playSong(index) {
-    window.location.href = `play.html?songId=${index}`;
-}</script>
+        function playSong(index) {
+            window.location.href = `play.html?songId=${index}`;
+        }
+    </script>
 </body>
 </html>
