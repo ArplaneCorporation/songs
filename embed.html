@@ -4,29 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arplane Songs - ฝังเพลง</title>
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-</head><body>
-    <div class="container">
-        <header>
-            <h1 id="song-title">ชื่อเพลง</h1>
-        </header>
-        <main>
-            <div id="audio-player">
-                <audio id="audio" autoplay></audio>
-                <div id="controls">
-                    <button id="play-pause">หยุด</button>
-                    <input type="range" id="progress" value="0" min="0" max="100" step="1">
-                    <span id="current-time">00:00</span> / <span id="duration">00:00</span>
-                    <button id="repeat">เล่นซ้ำ</button>
-                </div>
-            </div>
-            <p id="lyrics">เนื้อเพลง</p>
-            <div class="buttons">
-            </div>
-        </main>
-    </div>
-    <script src="main.js"></script>
-</body>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #fafafa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-</html>	
+        .embed-container {
+            width: 100%;
+            max-width: 500px; /* ขนาดสูงสุดของกรอบ */
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: auto; /* ทำให้กรอบมีขนาดตามเนื้อหา */
+            box-sizing: border-box;
+        }
+
+        #audio {
+            width: 100%;
+            display: none; /* Hide default controls */
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #play-pause {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1em;
+        }
+
+        #play-pause:hover {
+            background: #0056b3;
+        }
+
+        #progress {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #song-title {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.2em;
+            text-align: center;
+            margin: 0;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        footer span {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="embed-container">
+        <h1 id="song-title">ชื่อเพลง</h1>
+        <audio id="audio" autoplay></audio>
+        <div id="controls">
+            <button id="play-pause">เล่น</button>
+            <input type="range" id="progress" value="0" min="0" max="100" step="1">
+        </div>
+        <footer>
+            Powered by Arplane Song <span>&#10084;</span>
+        </footer>
+    </div>
+    <script>
+        const apiKey = 'AIzaSyDgxTWXvIUQND4C7gzapRW6KNqEaBPQ8Y0';
+        const sheetId = '1RghErH0w2v3msmgsNubUZxchF14ROg0WWNrKMsBZ6Ug';
+        const sheetName = 'Songs';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            playSong();
+        });
+
+        function playSong() {
+            const songId = new URLSearchParams(window.location.search).get('songId');
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const rowData = data.values.slice(1); // ละเว้นแถวหัวเรื่อง
+                    const song = rowData[songId];
+
+                    document.getElementById('song-title').innerText = song[0]; // ชื่อเพลง
+                    const audio = document.getElementById('audio');
+                    audio.src = song[2];
+
+                    const playPauseButton = document.getElementById('play-pause');
+                    const progress = document.getElementById('progress');
+
+                    playPauseButton.addEventListener('click', () => {
+                        if (audio.paused) {
+                            audio.play();
+                            playPauseButton.innerText = 'หยุด';
+                        } else {
+                            audio.pause();
+                            playPauseButton.innerText = 'เล่น';
+                        }
+                    });
+
+                    progress.addEventListener('input', () => {
+                        audio.currentTime = (progress.value / 100) * audio.duration;
+                    });
+
+                    audio.addEventListener('timeupdate', () => {
+                        progress.value = (audio.currentTime / audio.duration) * 100;
+                    });
+
+                    audio.addEventListener('loadedmetadata', () => {
+                        progress.max = 100;
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
