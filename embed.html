@@ -28,7 +28,6 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            height: auto; /* ทำให้กรอบมีขนาดตามเนื้อหา */
             box-sizing: border-box;
         }
 
@@ -64,6 +63,12 @@
             margin-top: 10px;
         }
 
+        #time-info {
+            font-family: 'Roboto', sans-serif;
+            margin: 10px 0;
+            text-align: center;
+        }
+
         #song-title {
             font-family: 'Roboto', sans-serif;
             font-size: 1.2em;
@@ -92,6 +97,7 @@
         <div id="controls">
             <button id="play-pause">เล่น</button>
             <input type="range" id="progress" value="0" min="0" max="100" step="1">
+            <div id="time-info">00:00/00:00</div>
         </div>
         <footer>
             Powered by Arplane Song <span>&#10084;</span>
@@ -121,6 +127,7 @@
 
                     const playPauseButton = document.getElementById('play-pause');
                     const progress = document.getElementById('progress');
+                    const timeInfo = document.getElementById('time-info');
 
                     playPauseButton.addEventListener('click', () => {
                         if (audio.paused) {
@@ -138,11 +145,25 @@
 
                     audio.addEventListener('timeupdate', () => {
                         progress.value = (audio.currentTime / audio.duration) * 100;
+                        updateTimeInfo();
                     });
 
                     audio.addEventListener('loadedmetadata', () => {
                         progress.max = 100;
+                        updateTimeInfo();
                     });
+
+                    function updateTimeInfo() {
+                        const currentTime = formatTime(audio.currentTime);
+                        const duration = formatTime(audio.duration);
+                        timeInfo.innerText = `${currentTime}/${duration}`;
+                    }
+
+                    function formatTime(seconds) {
+                        const minutes = Math.floor(seconds / 60);
+                        const secs = Math.floor(seconds % 60);
+                        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+                    }
                 });
         }
     </script>
