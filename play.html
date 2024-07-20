@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arplane Songs - ฟังเพลง</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="song-title">ชื่อเพลง</h1>
+        </header>
+        <main>
+            <audio id="audio" controls></audio>
+            <p id="lyrics">เนื้อเพลง</p>
+            <div id="progress">00:00 / 00:00</div>
+            <div class="buttons">
+                <button onclick="goBack()">กลับ</button>
+                <button onclick="embedSong()">ฝังเพลง</button>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            playSong();
+        });
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function embedSong() {
+            const songId = localStorage.getItem('currentSongIndex');
+            const embedUrl = `embed.html?songId=${songId}`;
+            prompt('ฝังเพลงโดยใช้ URL นี้:', embedUrl);
+        }
+
+        function playSong() {
+            const currentIndex = localStorage.getItem('currentSongIndex');
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const rowData = data.values.slice(1); // ละเว้นแถวหัวเรื่อง
+                    const song = rowData[currentIndex];
+
+                    document.getElementById('song-title').innerText = song[0];
+                    document.getElementById('audio').src = song[2];
+                    document.getElementById('lyrics').innerText = song[1];
+
+                    const audio = document.getElementById('audio');
+                    audio.addEventListener('timeupdate', () => {
+                        const currentTime = formatTime(audio.currentTime);
+                        const duration = formatTime(audio.duration);
+                        document.getElementById('progress').innerText = `${currentTime} / ${duration}`;
+                    });
+                });
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+    </script>
+</body>
+</html>

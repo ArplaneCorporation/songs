@@ -1,0 +1,78 @@
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #333;
+    font-size: 2em;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+#songs {
+    list-style: none;
+    padding: 0;
+}
+
+#songs li {
+    padding: 10px;
+    margin: 10px 0;
+    background: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#songs li:hover {
+    background: #ddd;
+}
+
+audio {
+    width: 100%;
+    margin: 20px 0;
+}
+
+#progress {
+    margin-top: 10px;
+    color: #666;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-family: 'Roboto', sans-serif;
+}
+
+.buttons button:hover {
+    background: #0056b3;
+}
