@@ -26,7 +26,7 @@ function goBack() {
 
 function embedSong() {
     const songId = new URLSearchParams(window.location.search).get('songId');
-    const embedUrl = `embed.html?songId=${songId}`;
+    const embedUrl = `https://arplanecorporation.github.io/songs/embed.html?songId=${songId}`;
     prompt('ฝังเพลงโดยใช้ URL นี้:', embedUrl);
 }
 
