@@ -14,11 +14,12 @@
         </header>
         <main>
             <div id="audio-player">
-                <audio id="audio"></audio>
+                <audio id="audio" autoplay></audio>
                 <div id="controls">
-                    <button id="play-pause">เล่น</button>
+                    <button id="play-pause">หยุด</button>
                     <input type="range" id="progress" value="0" min="0" max="100" step="1">
                     <span id="current-time">00:00</span> / <span id="duration">00:00</span>
+                    <button id="repeat">เล่นซ้ำ</button>
                 </div>
             </div>
             <p id="lyrics">เนื้อเพลง</p>

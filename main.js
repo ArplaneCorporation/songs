@@ -13,7 +13,7 @@ fetch(url)
                 <tr>
                     <td>${row[0]}</td>
                     <td>${row[1]}</td>
-                    <td><a href="${row[2]}" target="_blank">${row[2]}</a></td>
+                    <td><a href="play.html?songId=${index}" target="_blank">${row[2]}</a></td>
                 </tr>
             `;
         });
@@ -25,7 +25,7 @@ function goBack() {
 }
 
 function embedSong() {
-    const songId = localStorage.getItem('currentSongIndex');
+    const songId = new URLSearchParams(window.location.search).get('songId');
     const embedUrl = `embed.html?songId=${songId}`;
     prompt('ฝังเพลงโดยใช้ URL นี้:', embedUrl);
 }
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function playSong() {
-    const currentIndex = localStorage.getItem('currentSongIndex');
+    const currentIndex = new URLSearchParams(window.location.search).get('songId');
     fetch(url)
         .then(res => res.json())
         .then(data => {
@@ -50,6 +50,9 @@ function playSong() {
             document.getElementById('lyrics').innerText = song[1];
 
             const playPauseButton = document.getElementById('play-pause');
+            const repeatButton = document.getElementById('repeat');
+            let isRepeating = false;
+
             playPauseButton.addEventListener('click', () => {
                 if (audio.paused) {
                     audio.play();
@@ -58,6 +61,11 @@ function playSong() {
                     audio.pause();
                     playPauseButton.innerText = 'เล่น';
                 }
+            });
+
+            repeatButton.addEventListener('click', () => {
+                isRepeating = !isRepeating;
+                repeatButton.innerText = isRepeating ? 'หยุดเล่นซ้ำ' : 'เล่นซ้ำ';
             });
 
             const progress = document.getElementById('progress');
@@ -69,6 +77,15 @@ function playSong() {
                 progress.value = (audio.currentTime / audio.duration) * 100;
                 document.getElementById('current-time').innerText = formatTime(audio.currentTime);
                 document.getElementById('duration').innerText = formatTime(audio.duration);
+            });
+
+            audio.addEventListener('ended', () => {
+                if (isRepeating) {
+                    audio.currentTime = 0;
+                    audio.play();
+                } else {
+                    playPauseButton.innerText = 'เล่น';
+                }
             });
 
             audio.addEventListener('loadedmetadata', () => {

@@ -77,7 +77,7 @@ a:hover {
     margin-top: 10px;
 }
 
-#play-pause {
+#play-pause, #repeat {
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -87,7 +87,7 @@ a:hover {
     font-family: 'Roboto', sans-serif;
 }
 
-#play-pause:hover {
+#play-pause:hover, #repeat:hover {
     background: #0056b3;
 }
 
