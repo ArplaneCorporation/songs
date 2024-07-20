@@ -13,11 +13,35 @@
             <h1>Arplane Songs</h1>
         </header>
         <main>
-            <ul id="songs">
-                <!-- รายการเพลงจะถูกแทรกที่นี่ -->
-            </ul>
+            <div id="songs">
+                <!-- Song buttons will be populated here -->
+            </div>
         </main>
     </div>
-    <script src="main.js"></script>
+    <script>
+const apiKey = 'AIzaSyDgxTWXvIUQND4C7gzapRW6KNqEaBPQ8Y0';
+const sheetId = '1RghErH0w2v3msmgsNubUZxchF14ROg0WWNrKMsBZ6Ug';
+const sheetName = 'Songs';
+const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
+fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        const rowData = data.values.slice(1); // ละเว้นแถวหัวเรื่อง
+        let html = '';
+        rowData.forEach((row, index) => {
+            html += `
+                <button onclick="playSong(${index})" class="song-button">${row[0]}</button>
+            `;
+        });
+        const songsDiv = document.querySelector('#songs');
+        if (songsDiv) {
+            songsDiv.innerHTML = html;
+        }
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
+function playSong(index) {
+    window.location.href = `play.html?songId=${index}`;
+}</script>
 </body>
 </html>
