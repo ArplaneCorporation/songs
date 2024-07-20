@@ -6,52 +6,24 @@
     <title>Arplane Songs - ฝังเพลง</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body>
+</head><body>
     <div class="container">
         <header>
             <h1 id="song-title">ชื่อเพลง</h1>
         </header>
         <main>
-            <audio id="audio" controls></audio>
+            <div id="audio-player">
+                <audio id="audio" autoplay></audio>
+                <div id="controls">
+                    <button id="play-pause">หยุด</button>
+                    <input type="range" id="progress" value="0" min="0" max="100" step="1">
+                    <span id="current-time">00:00</span> / <span id="duration">00:00</span>
+                    <button id="repeat">เล่นซ้ำ</button>
+                </div>
+            </div>
             <p id="lyrics">เนื้อเพลง</p>
-            <div id="progress">00:00 / 00:00</div>
         </main>
     </div>
     <script src="main.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const songId = urlParams.get('songId');
-            playEmbeddedSong(songId);
-        });
-
-        function playEmbeddedSong(songId) {
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    const rowData = data.values.slice(1); // ละเว้นแถวหัวเรื่อง
-                    const song = rowData[songId];
-
-                    document.getElementById('song-title').innerText = song[0];
-                    document.getElementById('audio').src = song[2];
-                    document.getElementById('lyrics').innerText = song[1];
-
-                    const audio = document.getElementById('audio');
-                    audio.addEventListener('timeupdate', () => {
-                        const currentTime = formatTime(audio.currentTime);
-                        const duration = formatTime(audio.duration);
-                        document.getElementById('progress').innerText = `${currentTime} / ${duration}`;
-                    });
-                });
-        }
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-    </script>
 </body>
-</html>
-	
+</html>	
