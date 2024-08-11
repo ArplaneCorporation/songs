@@ -106,11 +106,13 @@
         }
 
         .lyrics {
-            width: 100%;
             position: absolute;
-            top: 0;
-            left: 0;
-            transition: transform 0.75s ease-in-out;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            transition: opacity 0.5s ease;
         }
 
         .previous, .current, .next {
@@ -279,13 +281,6 @@
                         document.getElementById('previous').innerHTML = previousSubtitle ? previousSubtitle.text : '';
                         document.getElementById('current').innerHTML = currentSubtitle ? currentSubtitle.text : '';
                         document.getElementById('next').innerHTML = nextSubtitle ? nextSubtitle.text : '';
-
-                        // เคลื่อนที่เนื้อเพลง
-                        const lyricsElement = document.querySelector('.lyrics');
-                        if (currentSubtitle) {
-                            const currentOffset = -(currentSubtitleIndex / subtitles.length) * 100;
-                            lyricsElement.style.transform = `translateY(${currentOffset}%)`;
-                        }
                     }
                 });
         }
