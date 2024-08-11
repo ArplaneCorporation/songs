@@ -164,9 +164,7 @@
             const apiKey = 'AIzaSyDgxTWXvIUQND4C7gzapRW6KNqEaBPQ8Y0';
             const sheetId = '1RghErH0w2v3msmgsNubUZxchF14ROg0WWNrKMsBZ6Ug';
             const sheetName = 'Songs';
-            const srtFileId = '1ZchcX0JeNQnS6jj-_LnpGooiFNc1Yb1f';
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
-            const srtUrl = `https://www.googleapis.com/drive/v3/files/${srtFileId}?alt=media&key=${apiKey}`;
 
             fetch(url)
                 .then(res => res.json())
@@ -177,6 +175,7 @@
                     document.getElementById('song-title').innerText = song[0];
                     const audio = document.getElementById('audio');
                     audio.src = song[2];
+	const srtUrl = song[3];
 
                     const playPauseButton = document.getElementById('play-pause');
                     const progress = document.getElementById('progress');
