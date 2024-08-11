@@ -29,6 +29,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            position: relative;
         }
 
         #audio {
@@ -90,7 +91,44 @@
         }
 
         .lyrics-container {
-            display: none; /* ซ่อนเนื้อเพลง */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fff;
+            text-align: center;
+            position: relative;
+            height: 150px;
+            overflow: hidden;
+        }
+
+        .lyrics {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.75s ease-in-out;
+        }
+
+        .previous, .current, .next {
+            font-size: 18px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .previous, .next {
+            opacity: 0.5;
+        }
+
+        .current {
+            opacity: 1;
+            font-weight: bold;
+            background: #ffeb3b;
+            padding: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -159,12 +197,21 @@
                     audio.addEventListener('timeupdate', () => {
                         progress.value = (audio.currentTime / audio.duration) * 100;
                         updateTimeInfo();
-                        updateLyrics(audio.currentTime);
+                        updateLyrics(audio.currentTime, subtitles);
                     });
 
                     audio.addEventListener('loadedmetadata', () => {
                         progress.max = 100;
                         updateTimeInfo();
+                        fetch(srtUrl)
+                            .then(response => response.text())
+                            .then(srtData => {
+                                subtitles = parseSRT(srtData);
+                                if (subtitles.length > 0) {
+                                    document.querySelector('.lyrics-container').style.display = 'flex';
+                                    updateLyrics(audio.currentTime, subtitles);
+                                }
+                            });
                     });
 
                     function updateTimeInfo() {
@@ -179,73 +226,68 @@
                         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
                     }
 
-                    // โหลดเนื้อเพลงจาก Google Drive
-                    fetch(srtUrl)
-                        .then(response => response.text())
-                        .then(srtData => {
-                            const subtitles = parseSRT(srtData);
-                            if (subtitles.length > 0) {
-                                document.querySelector('.lyrics-container').style.display = 'flex';
-                                // อัปเดตเนื้อเพลงในขณะที่เพลงเล่นอยู่
-                                audio.addEventListener('timeupdate', () => updateLyrics(audio.currentTime, subtitles));
+                    function parseSRT(data) {
+                        const subtitles = [];
+                        const lines = data.split('\n');
+                        let index = 0;
+                        while (index < lines.length) {
+                            if (lines[index].trim() === '') {
+                                index++;
+                                continue;
                             }
-                        });
+                            const number = parseInt(lines[index++]);
+                            const timeRange = lines[index++].split(' --> ');
+                            const startTime = convertToSeconds(timeRange[0]);
+                            const endTime = convertToSeconds(timeRange[1]);
+                            const text = [];
+                            while (index < lines.length && lines[index].trim() !== '') {
+                                text.push(lines[index++]);
+                            }
+                            subtitles.push({ startTime, endTime, text: text.join('<br>') });
+                        }
+                        return subtitles;
+                    }
+
+                    function convertToSeconds(time) {
+                        const [h, m, s] = time.split(':');
+                        const [sec, ms] = s.split(',');
+                        return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(sec) + parseInt(ms) / 1000;
+                    }
+
+                    function updateLyrics(currentTime, subtitles) {
+                        let previousSubtitleIndex = -1;
+                        let currentSubtitleIndex = -1;
+                        let nextSubtitleIndex = -1;
+
+                        for (let i = 0; i < subtitles.length; i++) {
+                            const subtitle = subtitles[i];
+                            if (subtitle.endTime < currentTime) {
+                                previousSubtitleIndex = i;
+                            }
+                            if (subtitle.startTime <= currentTime && subtitle.endTime >= currentTime) {
+                                currentSubtitleIndex = i;
+                            }
+                            if (subtitle.startTime > currentTime && nextSubtitleIndex === -1) {
+                                nextSubtitleIndex = i;
+                            }
+                        }
+
+                        const previousSubtitle = previousSubtitleIndex >= 0 ? subtitles[previousSubtitleIndex] : null;
+                        const currentSubtitle = currentSubtitleIndex >= 0 ? subtitles[currentSubtitleIndex] : null;
+                        const nextSubtitle = nextSubtitleIndex >= 0 ? subtitles[nextSubtitleIndex] : null;
+
+                        document.getElementById('previous').innerHTML = previousSubtitle ? previousSubtitle.text : '';
+                        document.getElementById('current').innerHTML = currentSubtitle ? currentSubtitle.text : '';
+                        document.getElementById('next').innerHTML = nextSubtitle ? nextSubtitle.text : '';
+
+                        // เคลื่อนที่เนื้อเพลง
+                        const lyricsElement = document.querySelector('.lyrics');
+                        if (currentSubtitle) {
+                            const currentOffset = -(currentSubtitleIndex / subtitles.length) * 100;
+                            lyricsElement.style.transform = `translateY(${currentOffset}%)`;
+                        }
+                    }
                 });
-
-            function parseSRT(data) {
-                const subtitles = [];
-                const lines = data.split('\n');
-                let index = 0;
-                while (index < lines.length) {
-                    if (lines[index].trim() === '') {
-                        index++;
-                        continue;
-                    }
-                    const number = parseInt(lines[index++]);
-                    const timeRange = lines[index++].split(' --> ');
-                    const startTime = convertToSeconds(timeRange[0]);
-                    const endTime = convertToSeconds(timeRange[1]);
-                    const text = [];
-                    while (index < lines.length && lines[index].trim() !== '') {
-                        text.push(lines[index++]);
-                    }
-                    subtitles.push({ startTime, endTime, text: text.join('<br>') });
-                }
-                return subtitles;
-            }
-
-            function convertToSeconds(time) {
-                const [h, m, s] = time.split(':');
-                const [sec, ms] = s.split(',');
-                return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(sec) + parseInt(ms) / 1000;
-            }
-
-            function updateLyrics(currentTime, subtitles) {
-                let previousSubtitleIndex = -1;
-                let currentSubtitleIndex = -1;
-                let nextSubtitleIndex = -1;
-
-                for (let i = 0; i < subtitles.length; i++) {
-                    const subtitle = subtitles[i];
-                    if (subtitle.endTime < currentTime) {
-                        previousSubtitleIndex = i;
-                    }
-                    if (subtitle.startTime <= currentTime && subtitle.endTime >= currentTime) {
-                        currentSubtitleIndex = i;
-                    }
-                    if (subtitle.startTime > currentTime && nextSubtitleIndex === -1) {
-                        nextSubtitleIndex = i;
-                    }
-                }
-
-                const previousSubtitle = previousSubtitleIndex >= 0 ? subtitles[previousSubtitleIndex] : null;
-                const currentSubtitle = currentSubtitleIndex >= 0 ? subtitles[currentSubtitleIndex] : null;
-                const nextSubtitle = nextSubtitleIndex >= 0 ? subtitles[nextSubtitleIndex] : null;
-
-                document.getElementById('previous').innerHTML = previousSubtitle ? previousSubtitle.text : '';
-                document.getElementById('current').innerHTML = currentSubtitle ? currentSubtitle.text : '';
-                document.getElementById('next').innerHTML = nextSubtitle ? nextSubtitle.text : '';
-            }
         }
     </script>
 </body>
